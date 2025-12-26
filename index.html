@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gamyp ❤️</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+
+        :root {
+            --primary: #ff9aa2;
+            --secondary: #ffdac1;
+            --text: #5e5e5e;
+            --bg: #fff9f9;
+            --error: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--secondary) 100%);
+            overflow: hidden;
+            color: var(--text);
+        }
+
+        /* --- SCREENS --- */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            transition: opacity 0.5s;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        /* --- LOGIN --- */
+        .login-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem 1.5rem;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 15px;
+            border: 3px solid var(--primary);
+            outline: none;
+            font-family: inherit;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 5px 15px rgba(255, 154, 162, 0.4);
+            user-select: none;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* --- COUNTDOWN --- */
+        .timer {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 700;
+            color: var(--primary);
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* --- CELEBRATION --- */
+        .celebration-title {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            color: var(--primary);
+            font-weight: 800;
+            margin-bottom: 20px;
+            z-index: 10;
+            opacity: 0;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(255, 154, 162, 0.3);
+        }
+
+        .pop-in {
+            animation: popInText 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popInText {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        #photo-container {
+            width: 85vw;
+            max-width: 350px;
+            aspect-ratio: 3 / 4;
+            height: auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            background: #fff;
+            display: none;
+            border: 5px solid white;
+            z-index: 5;
+            /* Added transition for the smooth zoom effect */
+            transition: all 1s ease;
+        }
+
+        #photo-display {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- SPECIAL EFFECT FOR LAST PHOTO --- */
+        .final-photo-effect {
+            transform: scale(1.05);
+            /* Slight Zoom */
+            box-shadow: 0 0 50px rgba(255, 154, 162, 0.8) !important;
+            /* Pink Glow */
+            border-color: #ff9aa2 !important;
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 30px rgba(255, 154, 162, 0.5);
+                transform: scale(1.05);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(255, 154, 162, 1);
+                transform: scale(1.08);
+            }
+
+            100% {
+                box-shadow: 0 0 30px rgba(255, 154, 162, 0.5);
+                transform: scale(1.05);
+            }
+        }
+
+        /* --- QUESTION MODAL --- */
+        .question-box {
+            position: absolute;
+            bottom: -300px;
+            background: white;
+            padding: 2rem;
+            border-radius: 25px 25px 0 0;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+            transition: bottom 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .btn-group {
+            margin-top: 30px;
+            position: relative;
+            height: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .yes-btn {
+            background: #b5ead7;
+            color: #4a4a4a;
+            box-shadow: 0 5px 15px rgba(181, 234, 215, 0.5);
+            min-width: 120px;
+        }
+
+        .no-btn {
+            background: var(--primary);
+            color: white;
+            min-width: 120px;
+            transition: all 0.2s;
+        }
+
+        /* --- SHAKE ANIMATION --- */
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateX(10px) rotate(5deg);
+            }
+
+            75% {
+                transform: translateX(-10px) rotate(-5deg);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .shake-anim {
+            animation: shake 0.4s ease-in-out;
+            background-color: var(--error) !important;
+        }
+
+        /* --- SUCCESS MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 85%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .modal-open .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* --- GALLERY SCREEN --- */
+        #gallery-screen {
+            background: var(--bg);
+            display: none;
+            overflow-y: auto;
+            height: 100vh;
+            justify-content: flex-start;
+            padding: 40px 20px;
+        }
+
+        .gallery-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+            padding-bottom: 50px;
+        }
+
+        .gallery-item {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 3px solid white;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        /* --- LIGHTBOX --- */
+        #lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            flex-direction: column;
+        }
+
+        #lightbox img {
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-lightbox {
+            color: white;
+            font-size: 2rem;
+            margin-top: 20px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        /* --- HEARTS ANIMATION --- */
+        .heart {
+            position: absolute;
+            bottom: -50px;
+            background: transparent;
+            font-size: 2rem;
+            animation: floatUp linear forwards;
+            z-index: 1;
+            opacity: 0.8;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1) rotate(0deg);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-120vh) scale(1.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-weight: 600;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="applause-sound" preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/12/16/audio_17cc804362.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="success-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h1 style="font-size: 3rem; margin-bottom: 10px;">🥰</h1>
+            <h2 style="color: #ff9aa2;">ิ ิ ิ ิ ิ ิ Narak tee suddd</h2>
+            <p style="margin: 15px 0; font-size: 1.1rem; line-height: 1.5;">
+                Thank you for being the best i timm for me as alwaysss. <br>
+                <strong>Love You Too KAAAA</strong>
+            </p>
+            <button onclick="goToGallery()">Our Pic ❤️</button>
+        </div>
+    </div>
+
+    <div id="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Full View">
+        <div class="close-lightbox">✕</div>
+    </div>
+
+    <div id="login-screen" class="screen active">
+        <div class="login-box">
+            <h2>Password PLSSSS</h2>
+            <p style="margin-top: 10px; opacity: 0.8;">Enter the password</p>
+            <input type="text" id="passcode-input" placeholder="CODE" inputmode="numeric">
+            <br>
+            <button onclick="checkPasscode()">Unlock ❤️</button>
+            <p class="error" id="error-msg">Oops! Try again .</p>
+        </div>
+    </div>
+
+    <div id="countdown-screen" class="screen">
+        <h1 style="font-size: 1.5rem; opacity: 0.8;">Almost there...</h1>
+        <div class="timer" id="timer">00:00:00</div>
+        <p style="font-size: 1.2rem;">Waiting for our moment ✨</p>
+    </div>
+
+    <div id="celebration-screen" class="screen">
+        <h1 id="hny-text" class="celebration-title">Happy New Year I TIMMM 🎉</h1>
+
+        <div id="photo-container">
+            <img id="photo-display" src="" alt="Memory">
+        </div>
+
+        <div class="question-box" id="question-box">
+            <h2 style="font-size: 1.8rem;">Do you love me? (PICK THE RIGHT ONE!!!) </h2>
+            <div class="btn-group">
+                <button class="yes-btn" onclick="handleYesClick()">YES, OF COURSE! ❤️</button>
+                <button class="no-btn" id="no-btn" onclick="handleNoClick()">NO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gallery-screen" class="screen">
+        <h2 class="gallery-title">Our PIC 📸</h2>
+        <div class="gallery-grid" id="gallery-grid">
+        </div>
+    </div>
+
+    <script>
+        // ================= CONFIGURATION =================
+        const CORRECT_PASSCODE = "06012005";
+        const BYPASS_CODE = "1234";
+        const MASTER_CODE = "7777";
+        const REAL_NEW_YEAR = "January 1, 2026 00:00:00";
+
+        // --- LIST 1: FLASH PHOTOS (Intro Animation) ---
+        const FLASH_PHOTOS = [
+            "photos\\PIC_2.jpeg",
+            "photos\\PIC_3.jpeg",
+            "photos\\PIC_4.jpeg",
+            "photos\\PIC_5.jpeg",
+            "photos\\PIC_6.png",
+            "photos\\PIC_7.png",
+            "photos\\PIC_9.png",
+            "photos\\PIC_11.png",
+            "photos\\PIC_12.png",
+            "photos\\PIC_13.jpeg",
+            "photos\\PIC_14.jpeg",
+            "photos\\PIC_15.jpeg",
+            "photos\\PIC_16.jpeg",
+            "photos\\PIC_17.jpeg",
+            "photos\\PIC_19.jpeg",
+            "photos\\PIC_21.jpeg",
+            "photos\\PIC_22.jpeg",
+            "photos\\PIC_20.jpeg",
+            "photos\\PIC_8.jpeg",
+            "photos\\PIC_10.png",
+            "photos\\PIC_28.jpeg",
+            "photos\\PIC_26.jpeg"
+        ];
+
+        // --- LIST 2: GALLERY PHOTOS (The Album) ---
+        const OPPO_PHOTOS = Array.from({ length: 415 }, (_, i) =>
+            `photos/NOTT/Picture from Oppo/PIC_${i + 1}.png`
+        );
+
+        const GALLERY_PHOTOS = [
+            "photos/PIC_2.jpeg",
+            "photos/PIC_3.jpeg",
+            // ...
+            "photos/PIC_26.jpeg",
+            ...OPPO_PHOTOS
+        ];
+        // =================================================
+
+        let audioReady = false;
+        const applauseAudio = document.getElementById('applause-sound');
+
+        function checkPasscode() {
+            if (!audioReady) { applauseAudio.load(); audioReady = true; }
+
+            const input = document.getElementById('passcode-input').value;
+            const errorMsg = document.getElementById('error-msg');
+
+            if (input === CORRECT_PASSCODE) {
+                switchScreen('login-screen', 'countdown-screen');
+                startCountdown(false);
+            } else if (input === BYPASS_CODE) {
+                switchScreen('login-screen', 'countdown-screen');
+                startCountdown(true);
+            } else if (input === MASTER_CODE) {
+                goToGallery('login-screen');
+            } else {
+                errorMsg.style.display = 'block';
+                document.querySelector('.login-box').style.animation = "shake 0.5s";
+                setTimeout(() => { document.querySelector('.login-box').style.animation = ""; }, 500);
+            }
+        }
+
+        function switchScreen(fromId, toId) {
+            document.getElementById(fromId).classList.remove('active');
+            setTimeout(() => {
+                document.getElementById(fromId).style.display = 'none';
+                document.getElementById(toId).style.display = 'flex';
+                setTimeout(() => { document.getElementById(toId).classList.add('active'); }, 50);
+            }, 500);
+        }
+
+        let timerInterval;
+        function startCountdown(isBypass) {
+            let targetDate = isBypass ? new Date().getTime() + 3500 : new Date(REAL_NEW_YEAR).getTime();
+
+            timerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance < 100) {
+                    clearInterval(timerInterval);
+                    document.getElementById("timer").innerHTML = "00:00:00";
+                    startCelebration();
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("timer").innerHTML =
+                    (days > 0 ? days + "d " : "") +
+                    hours + "h " + minutes + "m " +
+                    (seconds < 10 ? "0" + seconds : seconds) + "s ";
+            }, 1000);
+        }
+
+        function startCelebration() {
+            switchScreen('countdown-screen', 'celebration-screen');
+            applauseAudio.play().catch(e => console.log("Audio auto-blocked"));
+            document.getElementById('hny-text').classList.add('pop-in');
+            fireConfetti();
+
+            setTimeout(() => {
+                let heartInterval = setInterval(createHeart, 100);
+                setTimeout(() => { clearInterval(heartInterval) }, 15000);
+            }, 500);
+
+            const photoContainer = document.getElementById('photo-container');
+            const photoImg = document.getElementById('photo-display');
+
+            setTimeout(() => {
+                photoContainer.style.display = 'block';
+
+                let i = 0;
+                let currentDelay = 50; // Start VERY FAST (50ms)
+
+                // Recursive function for variable speed
+                function showNextPhoto() {
+                    if (i < FLASH_PHOTOS.length) {
+                        photoImg.src = FLASH_PHOTOS[i];
+
+                        // Check if it's the LAST photo
+                        if (i === FLASH_PHOTOS.length - 1) {
+                            // Stop here and add SPECIAL EFFECT
+                            photoContainer.classList.add('final-photo-effect');
+
+                            setTimeout(() => {
+                                document.getElementById('question-box').style.bottom = "0";
+                            }, 3000);
+                        } else {
+                            // Not the last photo, keep going
+                            i++;
+                            // Increase delay to make it slower (Add 25ms each step)
+                            currentDelay += 25;
+                            setTimeout(showNextPhoto, currentDelay);
+                        }
+                    }
+                }
+
+                // Start the loop
+                showNextPhoto();
+
+            }, 3000);
+        }
+
+        function fireConfetti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5, angle: 60, spread: 55, origin: { x: 0, y: 0.8 },
+                    colors: ['#ff9aa2', '#b5ead7', '#ffd700']
+                });
+                confetti({
+                    particleCount: 5, angle: 120, spread: 55, origin: { x: 1, y: 0.8 },
+                    colors: ['#ff9aa2', '#b5ead7', '#ffd700']
+                });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = Math.random() * 3 + 2 + "s";
+            heart.style.fontSize = Math.random() * 20 + 15 + "px";
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 5000);
+        }
+
+        function handleNoClick() {
+            const noBtn = document.getElementById('no-btn');
+            noBtn.classList.add('shake-anim');
+            const originalText = noBtn.innerText;
+            noBtn.innerText = "Wrong Answer! 😤";
+            setTimeout(() => {
+                noBtn.classList.remove('shake-anim');
+                noBtn.innerText = "NO";
+            }, 1000);
+        }
+
+        function handleYesClick() {
+            fireConfetti();
+            const modal = document.getElementById('success-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('modal-open');
+            }, 10);
+        }
+
+        function goToGallery(fromId = 'celebration-screen') {
+            const modal = document.getElementById('success-modal');
+            modal.classList.remove('modal-open');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+
+            const galleryGrid = document.getElementById('gallery-grid');
+            galleryGrid.innerHTML = "";
+
+            GALLERY_PHOTOS.forEach(src => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.classList.add('gallery-item');
+                img.onclick = () => openLightbox(src);
+                galleryGrid.appendChild(img);
+            });
+
+            switchScreen(fromId, 'gallery-screen');
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+    </script>
+</body>
+
+</html>
